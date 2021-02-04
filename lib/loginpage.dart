@@ -87,6 +87,7 @@ class _LoginState extends State<Login> {
                       SizedBox(height: 20,),
                       TextFormField(
                         controller: _password,
+                        obscureText: true,
                         validator: (val){
                           if(val.isEmpty){
                             return 'please enter the password';
@@ -104,6 +105,7 @@ class _LoginState extends State<Login> {
 
                           labelText: 'Password',
                           hintText: 'please enter the correct password',
+
                           prefixIcon: Icon(Icons.vpn_key,color: Colors.white,),
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),

@@ -1,6 +1,7 @@
 import 'package:chat_app/chatroom.dart';
 import 'package:chat_app/firebasepage.dart';
 import 'package:chat_app/helperfunction.dart';
+import 'package:chat_app/loginpage.dart';
 import 'package:chat_app/namepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +16,7 @@ class _SearchPageState extends State<SearchPage> {
   FirePage firePage = FirePage();
   TextEditingController searchName = TextEditingController();
   QuerySnapshot querySnapshot;
-  QuerySnapshot querySnapshot2;
+  //QuerySnapshot querySnapshot2;
 
   NamePage namePage = new NamePage();
 
@@ -44,7 +45,7 @@ class _SearchPageState extends State<SearchPage> {
     }));
   }
 
-  searchuid() async {
+  /*searchuid() async {
     final User user = await FirebaseAuth.instance.currentUser;
     firePage.getimage(user.uid.toString()).then((val) {
       print('sdwwwwww');
@@ -52,13 +53,13 @@ class _SearchPageState extends State<SearchPage> {
         querySnapshot2 = val;
       });
     });
-  }
+  }*/
 
-  searchmethods() {
-    firePage.search(searchName.text).then((val) {
+  searchmethods() async{
+    await firePage.search(searchName.text).then((val) {
       print('sccdddcccc');
       setState(() {
-        print(val + "sosososo");
+        print(val.toString() + "sosososo");
         querySnapshot = val;
       });
     });
@@ -100,23 +101,34 @@ class _SearchPageState extends State<SearchPage> {
   String name;
   String email;
   String urlimage;
-
-  void initState() {
-    super.initState();
-    namestorage();
-    var user = FirebaseAuth.instance.currentUser;
+  getinfo()async{
+    uid=null;
+    name=null;
+    email=null;
+    urlimage=null;
+    var user =  await FirebaseAuth.instance.currentUser;
+    print('user222'+user.uid);
     if (user != null) {
-      FirebaseFirestore.instance
+       FirebaseFirestore.instance
           .collection('user')
           .where('uid', isEqualTo: user.uid)
           .get()
           .then((snapshot) => setState(() {
-                uid = user.uid;
-                name = snapshot.docs[0].data()['name'];
-                email = snapshot.docs[0].data()['email'];
-                urlimage = snapshot.docs[0].data()['image'];
-              }));
+        uid = user.uid;
+        print('uidddd'+uid);
+          name = snapshot.docs[0].data()['name'];
+        email = snapshot.docs[0].data()['email'];
+        urlimage = snapshot.docs[0].data()['image'];
+      }));
     }
+
+  }
+
+  void initState() {
+    super.initState();
+    getinfo();
+    namestorage();
+
   }
 
   @override
@@ -165,21 +177,15 @@ class _SearchPageState extends State<SearchPage> {
                       ? NetworkImage(urlimage)
                       : ExactAssetImage('images/person-icon.png'),
                 ),
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                      Color(0xFF0F52BA),
-                      Color(0xFF6593F5),
-                      Color(0xFF4682B4),
-                    ],
-                        stops: [
-                      0.33,
-                      0.66,
-                      0.99
-                    ])),
+                decoration: drawerdecoration(),
               ),
+              ListTile(
+                title: Text('Sign out'),
+                leading: Icon(Icons.exit_to_app ),
+                onTap: ()async{
+                  signout();
+                  },
+              )
             ],
           )),
           body: Padding(
@@ -256,5 +262,37 @@ class _SearchPageState extends State<SearchPage> {
         }
       },
     );
+  }
+
+  drawerdecoration() {
+    return BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color(0xFF0F52BA),
+              Color(0xFF6593F5),
+              Color(0xFF4682B4),
+            ],
+            stops: [
+              0.33,
+              0.66,
+              0.99
+            ]));
+  }
+
+   void signout() async{
+    if( FirebaseAuth.instance.currentUser != null){
+      print(FirebaseAuth.instance.currentUser.uid+'sdsds');
+       await FirebaseAuth.instance.signOut();
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder:(context){
+            return Login();
+          }
+      ), (route) => false);
+
+
+    }
+
   }
 }

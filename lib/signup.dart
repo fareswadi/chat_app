@@ -28,6 +28,7 @@ class _SignUpState extends State<SignUp> {
   QuerySnapshot querySnapshot;
   File _image;
   String urlimage;
+ bool  isloading=false;
 
   @override
 
@@ -236,7 +237,9 @@ class _SignUpState extends State<SignUp> {
       ],
     );
   }
-
+  doloading(BuildContext context){
+    return Center(child: CircularProgressIndicator());
+  }
    signup() async{
      final User user = await FirebaseAuth.instance.currentUser;
     try{
@@ -251,7 +254,9 @@ class _SignUpState extends State<SignUp> {
           print('yes user');
           Helper.setmyname(_namecontroller.text);
 
-
+          setState(() {
+            isloading=true;
+          });
           print('object2132');
           Map<String , String>data={
             'email':_emailcontroller.text,
